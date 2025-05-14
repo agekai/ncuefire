@@ -5,24 +5,22 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-family: sans-serif;
+  overflow: hidden; /* 加這行避免出現捲軸 */
 }
 
 #container {
   position: relative;
-  width: 80%;
-  height: 90%;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 iframe {
-  width: 100%;
+  width: calc(100% - 160px); /* 給按鈕留空間 */
   height: 100%;
   border: none;
-  flex-grow: 1;
-  margin: 0 40px;
   background: #000;
 }
 
@@ -35,9 +33,4 @@ button {
   cursor: pointer;
   z-index: 10;
   transition: background 0.3s;
-}
-
-button:hover {
-  background: white;
-  color: black;
 }
