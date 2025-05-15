@@ -151,11 +151,6 @@ function mousePressed() {
   }
 }
 
-function touchStarted() {
-  mousePressed(); // 手指觸控也觸發與滑鼠點擊相同邏輯
-  return false;   // 防止預設行為（例如頁面滑動）
-}
-
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
