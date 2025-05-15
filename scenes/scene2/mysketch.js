@@ -2,7 +2,7 @@ let dotFlashes = [];
 let isActive = false; // 動畫狀態：false = 靜態, true = 動態
 
 function setup() {
-  createCanvas(600, 600);
+  createCanvas(windowWidth, windowHeight);
   noFill();
   textAlign(CENTER, CENTER);
   textFont("Noto Serif TC");
