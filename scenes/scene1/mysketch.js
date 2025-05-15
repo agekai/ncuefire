@@ -2,8 +2,7 @@ let dotFlashes = [];
 let showAxes = false;
 
 function setup() {
-  let canvas = createCanvas(600, 600);
-  canvas.parent("canvas-container");
+  canvas = createCanvas(600, 600);
   noFill();
   textAlign(CENTER, CENTER);
   textFont("Noto Serif TC");
