@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>白沙火舞社大成．點</title>
+  <title>白沙火舞社大成．點</title> 
   <style>
     html {
       height: auto;
@@ -30,6 +30,12 @@
       box-sizing: border-box;
       text-align: center;
       font-size: 1.2em;
+      z-index: 1000;
+      transition: color 0.3s;
+    }
+    #dialogue-box:hover {
+      cursor: pointer;
+      color: #f90;
     }
     #map {
       display: none;
@@ -55,10 +61,9 @@
       background-color: #555;
     }
     iframe {
-      width: 100%;
-      height: calc(100vh - 20px);
-      max-width: 1200px;
-      margin: 0 auto;
+      width: 100vw;
+      height: 100vh;
+      border: none;
       display: none;
     }
     #back-button {
@@ -73,8 +78,23 @@
       font-size: 1em;
       display: none;
       cursor: pointer;
+      z-index: 1000;
     }
-
+    #progress-container {
+      width: 100%;
+      background-color: #222;
+      height: 10px;
+      margin: 0;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
+    #progress-bar {
+      height: 100%;
+      background-color: #f90;
+      width: 0%;
+      transition: width 0.3s;
+    }
     @media (min-width: 768px) {
       #map {
         flex-direction: row;
@@ -90,20 +110,23 @@
 </head>
 <body>
 
+<div id="progress-container">
+  <div id="progress-bar"></div>
+</div>
 <div id="dialogue-box" onclick="nextDialogue()">點一下開始節目冒險！</div>
 <button id="back-button" onclick="goBack()">← 返回地圖</button>
 
 <div id="map">
-  <button class="scene-button" onclick="loadScene(0)">🌊 序章：水之靜</button>
-  <button class="scene-button" onclick="loadScene(1)">🔥 火之躍動</button>
-  <button class="scene-button" onclick="loadScene(2)">🌪 風之節奏</button>
-  <button class="scene-button" onclick="loadScene(3)">🌱 土之悸動</button>
-  <button class="scene-button" onclick="loadScene(4)">🌟 原點重構</button>
-  <button class="scene-button" onclick="loadScene(5)">🎭 幕後現形</button>
-  <button class="scene-button" onclick="loadScene(6)">🎶 音與形</button>
-  <button class="scene-button" onclick="loadScene(7)">💨 火焰延伸</button>
-  <button class="scene-button" onclick="loadScene(8)">🌀 幾何迷宮</button>
-  <button class="scene-button" onclick="loadScene(9)">🚀 終章：原點出發</button>
+  <button class="scene-button" onclick="loadScene(0)">⚫ 序章：原點</button>
+  <button class="scene-button" onclick="loadScene(1)">🔥 點火</button>
+  <button class="scene-button" onclick="loadScene(2)">➖ y=ax+b</button>
+  <button class="scene-button" onclick="loadScene(3)">🔍 焦點</button>
+  <button class="scene-button" onclick="loadScene(4)">🙂 逗點</button>
+  <button class="scene-button" onclick="loadScene(5)">〰 反曲點</button>
+  <button class="scene-button" onclick="loadScene(6)">🍰 點心</button>
+  <button class="scene-button" onclick="loadScene(7)">🔳 體</button>
+  <button class="scene-button" onclick="loadScene(8)">🏁 中點</button>
+  <button class="scene-button" onclick="loadScene(9)">🔴 終章：句點</button>
 </div>
 
 <iframe id="scene-frame"></iframe>
@@ -117,6 +140,7 @@ const dialogues = [
   "準備好了嗎？點擊開始。"
 ];
 let index = 0;
+let visitedScenes = new Set();
 
 function nextDialogue() {
   const box = document.getElementById("dialogue-box");
@@ -128,17 +152,28 @@ function nextDialogue() {
   }
 }
 
+document.getElementById("dialogue-box").addEventListener("mouseenter", () => {
+  if (index === 0) {
+    document.getElementById("dialogue-box").innerText = "🔥 點一下開始節目冒險！";
+  }
+});
+document.getElementById("dialogue-box").addEventListener("mouseleave", () => {
+  if (index === 0) {
+    document.getElementById("dialogue-box").innerText = "點一下開始節目冒險！";
+  }
+});
+
 const sceneLinks = [
-  "/ncuefire/scenes/scene1/index.html",
-  "/ncuefire/scenes/scene2/index.html",
-  "/ncuefire/scenes/scene3/index.html",
-  "/ncuefire/scenes/scene4/index.html",
-  "/ncuefire/scenes/scene5/index.html",
-  "/ncuefire/scenes/scene6/index.html",
-  "/ncuefire/scenes/scene7/index.html",
-  "/ncuefire/scenes/scene8/index.html",
-  "/ncuefire/scenes/scene9/index.html",
-  "/ncuefire/scenes/scene10/index.html"
+  "scenes/scene1/index.html",
+  "scenes/scene2/index.html",
+  "scenes/scene3/index.html",
+  "scenes/scene4/index.html",
+  "scenes/scene5/index.html",
+  "scenes/scene6/index.html",
+  "scenes/scene7/index.html",
+  "scenes/scene8/index.html",
+  "scenes/scene9/index.html",
+  "scenes/scene10/index.html"
 ];
 
 function loadScene(i) {
@@ -147,6 +182,9 @@ function loadScene(i) {
   frame.src = sceneLinks[i];
   frame.style.display = 'block';
   document.getElementById("back-button").style.display = 'block';
+
+  visitedScenes.add(i);
+  updateProgressBar();
 }
 
 function goBack() {
@@ -154,6 +192,11 @@ function goBack() {
   document.getElementById("scene-frame").src = '';
   document.getElementById("map").style.display = 'flex';
   document.getElementById("back-button").style.display = 'none';
+}
+
+function updateProgressBar() {
+  const progress = (visitedScenes.size / sceneLinks.length) * 100;
+  document.getElementById("progress-bar").style.width = progress + "%";
 }
 </script>
 
