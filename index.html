@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>節目冒險：原點火焰</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #111;
+      color: #fff;
+      font-family: 'sans-serif';
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #dialogue-box {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+      font-size: 1.2em;
+    }
+    #map {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 80px;
+      width: 100%;
+    }
+    .scene-button {
+      padding: 15px 30px;
+      border-radius: 12px;
+      background-color: #333;
+      color: white;
+      font-size: 1.1em;
+      border: 2px solid #666;
+      width: 80%;
+      max-width: 400px;
+      transition: background 0.3s;
+    }
+    .scene-button:hover {
+      background-color: #555;
+    }
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      display: none;
+    }
+    #back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      display: none;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      #map {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .scene-button {
+        margin: 10px;
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="dialogue-box" onclick="nextDialogue()">點一下開始節目冒險！</div>
+<button id="back-button" onclick="goBack()">← 返回地圖</button>
+
+<div id="map">
+  <button class="scene-button" onclick="loadScene(0)">🌊 序章：水之靜</button>
+  <button class="scene-button" onclick="loadScene(1)">🔥 火之躍動</button>
+  <button class="scene-button" onclick="loadScene(2)">🌪 風之節奏</button>
+  <button class="scene-button" onclick="loadScene(3)">🌱 土之悸動</button>
+  <button class="scene-button" onclick="loadScene(4)">🌟 原點重構</button>
+  <button class="scene-button" onclick="loadScene(5)">🎭 幕後現形</button>
+  <button class="scene-button" onclick="loadScene(6)">🎶 音與形</button>
+  <button class="scene-button" onclick="loadScene(7)">💨 火焰延伸</button>
+  <button class="scene-button" onclick="loadScene(8)">🌀 幾何迷宮</button>
+  <button class="scene-button" onclick="loadScene(9)">🚀 終章：原點出發</button>
+</div>
+
+<iframe id="scene-frame"></iframe>
+
+<script>
+const dialogues = [
+  "歡迎來到《原點火焰》的世界。",
+  "這不只是一場表演，而是一場旅程。",
+  "你將踏上十段節目的探索之路。",
+  "每一幕，都藏有一段火焰的記憶。",
+  "準備好了嗎？點擊開始。"
+];
+let index = 0;
+
+function nextDialogue() {
+  const box = document.getElementById("dialogue-box");
+  if (index < dialogues.length) {
+    box.innerText = dialogues[index++];
+  } else {
+    box.style.display = 'none';
+    document.getElementById("map").style.display = 'flex';
+  }
+}
+
+const sceneLinks = [
+  "scenes/scene0.html",
+  "scenes/scene1.html",
+  "scenes/scene2.html",
+  "scenes/scene3.html",
+  "scenes/scene4.html",
+  "scenes/scene5.html",
+  "scenes/scene6.html",
+  "scenes/scene7.html",
+  "scenes/scene8.html",
+  "scenes/scene9.html"
+];
+
+function loadScene(i) {
+  document.getElementById("map").style.display = 'none';
+  const frame = document.getElementById("scene-frame");
+  frame.src = sceneLinks[i];
+  frame.style.display = 'block';
+  document.getElementById("back-button").style.display = 'block';
+}
+
+function goBack() {
+  document.getElementById("scene-frame").style.display = 'none';
+  document.getElementById("scene-frame").src = '';
+  document.getElementById("map").style.display = 'flex';
+  document.getElementById("back-button").style.display = 'none';
+}
+</script>
+
+</body>
+</html>
