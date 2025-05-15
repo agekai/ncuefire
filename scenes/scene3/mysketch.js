@@ -1,36 +1,69 @@
-let touchesPos = [];
+let canvas;
+let canvasSize;
+let baseWidth = 600;
+let baseHeight = 600;
 
-function setup() { 
-  createCanvas(600, 600);
-  noFill();
+let annotationText = "這是第3幕的文字註解，用打字機效果逐字出現。\n你可以修改這段文字內容。";
+let annotationIndex = 0;
+let annotationElement;
+let annotationSpeed = 50;
+
+function setup() {
+  let container = document.getElementById('canvas-container');
+  canvas = createCanvas(baseWidth, baseHeight);
+  canvas.parent(container);
+
   textAlign(CENTER, CENTER);
   textFont("Noto Serif TC");
+  noFill();
+
+  annotationElement = document.getElementById('annotation');
+  annotationElement.textContent = "";
+  annotationIndex = 0;
+  setTimeout(typeWriter, annotationSpeed);
+
+  adjustCanvasSize();
+  window.addEventListener('resize', adjustCanvasSize);
+}
+
+function adjustCanvasSize() {
+  let container = document.getElementById('canvas-container');
+  let w = container.clientWidth;
+  let h = container.clientHeight;
+  canvasSize = Math.min(w, h);
+  resizeCanvas(canvasSize, canvasSize);
 }
 
 function draw() {
   background(0, 40);
-	drawFrame();
+
+  let scaleFactor = canvasSize / baseWidth;
+  push();
+  scale(scaleFactor);
+
+  drawFrame();
 
   push();
-  translate(100, height * 0.75);
+  translate(100, baseHeight * 0.75); // 使用邏輯高度600
   drawAxesText();
   drawFireText();
   pop();
 
   drawTouchPoints();
+  pop();
 }
 
 function drawFrame() {
   fill(0, 200, 255);
   textSize(16);
   let spacing = 20;
-  for (let x = 10; x <= width; x += spacing) {
+  for (let x = 10; x <= baseWidth; x += spacing) {
     text("框", x, 10);
-    text("框", x, height - 10);
+    text("框", x, baseHeight - 10);
   }
-  for (let y = 10; y < height - 10; y += spacing) {
+  for (let y = 10; y < baseHeight - 10; y += spacing) {
     text("框", 10, y);
-    text("框", width - 10, y);
+    text("框", baseWidth - 10, y);
   }
 }
 
@@ -44,13 +77,13 @@ function drawAxesText() {
 
   let exclusionRadius = 50;
 
-  for (let i = -width + 520; i < width - 120; i += 20) {
+  for (let i = -80; i < 480; i += 20) {
     if (dist(i, 0, 0, 0) > exclusionRadius - 20 && i !== 0) {
       text("點", i + 10, 0);
     }
   }
 
-  for (let j = -height + 180; j < height - 460; j += 20) {
+  for (let j = -420; j < 140; j += 20) {
     if (dist(0, j, 0, 0) > exclusionRadius && j !== 0 && j !== -20) {
       text("點", 10, j);
     }
@@ -94,27 +127,35 @@ function drawTouchPoints() {
   noStroke();
   fill(255);
 
-  // 當畫面有觸控點時
+  let scaleFactor = canvasSize / baseWidth;
+
   if (touches.length === 1) {
     let t = touches[0];
-    firstTouch = createVector(t.x, t.y);
+    let x = t.x / scaleFactor;
+    let y = t.y / scaleFactor;
+
+    firstTouch = createVector(x, y);
     secondTouch = null;
     lineProgress = 0;
-    text("點", t.x, t.y);
+    text("點", x, y);
   } 
   else if (touches.length === 2) {
     if (firstTouch === null) {
-      firstTouch = createVector(touches[0].x, touches[0].y);
+      let x0 = touches[0].x / scaleFactor;
+      let y0 = touches[0].y / scaleFactor;
+      firstTouch = createVector(x0, y0);
     }
 
-    secondTouch = createVector(touches[1].x, touches[1].y);
+    let x1 = touches[1].x / scaleFactor;
+    let y1 = touches[1].y / scaleFactor;
+    secondTouch = createVector(x1, y1);
+
     text("點", firstTouch.x, firstTouch.y);
     text("點", secondTouch.x, secondTouch.y);
 
     drawLineAnimation(firstTouch, secondTouch);
   } 
   else {
-    // 沒有或超過兩指：重置所有
     firstTouch = null;
     secondTouch = null;
     lineProgress = 0;
@@ -128,7 +169,6 @@ function drawLineAnimation(p1, p2) {
 
   maxLineChars = int(totalDist / spacing);
 
-  // 緩慢遞增線段數
   if (lineProgress < maxLineChars) {
     lineProgress += 0.5;
   }
@@ -136,7 +176,6 @@ function drawLineAnimation(p1, p2) {
   for (let i = 1; i < int(lineProgress); i++) {
     let pos = p5.Vector.add(p1, p5.Vector.mult(direction, i));
 
-    // 火苗的顏色閃爍
     let flicker = map(sin(frameCount * 0.1 + i), -1, 1, 150, 255);
     let r = 255;
     let g = map(i, 0, maxLineChars, 100, 200);
@@ -144,19 +183,22 @@ function drawLineAnimation(p1, p2) {
 
     fill(r, g, b, flicker);
 
-    // 火苗跳動感
     let wobbleX = sin(frameCount * 0.1 + i * 0.5) * 2;
     let wobbleY = cos(frameCount * 0.1 + i * 0.3) * 2;
 
     push();
     translate(pos.x + wobbleX, pos.y + wobbleY);
     rotate(sin(frameCount * 0.05 + i) * 0.1);
-    textSize(24 + sin(frameCount * 0.2 + i) * 2); // 呼吸感
+    textSize(24 + sin(frameCount * 0.2 + i) * 2);
     text("線", 0, 0);
     pop();
   }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+function typeWriter() {
+  if (annotationIndex < annotationText.length) {
+    annotationElement.textContent += annotationText.charAt(annotationIndex);
+    annotationIndex++;
+    setTimeout(typeWriter, annotationSpeed);
+  }
 }
