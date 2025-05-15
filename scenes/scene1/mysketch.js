@@ -138,6 +138,10 @@ function mousePressed() {
   }
 }
 
+function touchStarted() {
+  mousePressed();
+}
+
 function typeWriter() {
   if (annotationIndex < annotationText.length) {
     annotationElement.textContent += annotationText.charAt(annotationIndex);
