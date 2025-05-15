@@ -44,10 +44,10 @@ function draw() {
   scale(scaleFactor);
 
   drawFrame();
-
+  if (showAxes) {
   createDotFlashes();
   updateDotFlashes();
-
+  }
   push();
   translate(100, 600 * 0.75);
   if (showAxes) {
@@ -136,10 +136,6 @@ function mousePressed() {
   if (abs(localX) < size && abs(localY) < size) {
     showAxes = !showAxes;
   }
-}
-
-function touchStarted() {
-  mousePressed();
 }
 
 function typeWriter() {
