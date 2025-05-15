@@ -45,8 +45,12 @@ function draw() {
 
   drawFrame();
 
+  push();
+  if (showAxes) {
   createDotFlashes();
   updateDotFlashes();
+  }
+  pop();
 
   push();
   translate(100, 600 * 0.75);
@@ -149,14 +153,4 @@ function typeWriter() {
     annotationIndex++;
     setTimeout(typeWriter, annotationSpeed);
   }
-}
-
-// 可用這函式換幕，示例：
-// setScene("第2幕：新火焰", "這是新幕的文字註解...");
-function setScene(title, annotation) {
-  document.getElementById('title').textContent = title;
-  annotationText = annotation;
-  annotationElement.textContent = "";
-  annotationIndex = 0;
-  setTimeout(typeWriter, annotationSpeed);
 }
