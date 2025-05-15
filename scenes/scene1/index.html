@@ -1,29 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Scene 1</title>
+<head>
+  <meta charset="UTF-8" />
+  <title>動畫幕展示</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      display: flex; flex-direction: column;
+      font-family: "Noto Serif TC", serif;
+      background: #000;
+      color: #0ff;
+      user-select: none;
+      overflow: hidden;
+    }
+    #title {
+      height: 10vh;
+      line-height: 10vh;
+      text-align: center;
+      font-size: 2.5rem;
+      border-bottom: 1px solid #0ff;
+      flex-shrink: 0;
+    }
+    #canvas-container {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 66vh;  /* 約2/3視窗高度 */
+      border-bottom: 1px solid #0ff;
+      background: #111;
+      box-shadow: 0 0 15px #0ff;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    #annotation {
+      height: 14vh;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      border-top: 1px solid #0ff;
+      flex-shrink: 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+</head>
+<body>
+  <div id="title">第1幕：原點火焰</div>
+  <div id="canvas-container"></div>
+  <div id="annotation"></div>
 
-    <!-- ✅ 讓手機／平板畫面正常縮放與互動 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-
-    <!-- ✅ p5.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
-
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        touch-action: none; /* ✅ 支援觸控互動 */
-      }
-      canvas {
-        display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- ✅ 引用動畫程式 -->
-    <script src="mysketch.js"></script>
-  </body>
+  <script src="mysketch.js"></script>
+</body>
 </html>
