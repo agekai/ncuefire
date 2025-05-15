@@ -3,10 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <title>Scene 1</title>
+
+    <!-- ✅ 讓手機／平板畫面正常縮放與互動 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+    <!-- ✅ p5.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
-    <style> body { margin: 0; overflow: hidden; } </style>
+
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        touch-action: none; /* ✅ 支援觸控互動 */
+      }
+      canvas {
+        display: block;
+      }
+    </style>
   </head>
   <body>
+    <!-- ✅ 引用動畫程式 -->
     <script src="mysketch.js"></script>
   </body>
 </html>
