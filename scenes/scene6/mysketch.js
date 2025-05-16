@@ -8,6 +8,17 @@ let annotationIndex = 0;
 let annotationElement;
 let annotationSpeed = 50;
 
+let walkToggle = false;
+let walkButtonPos;
+let walkButtonSize = 40;
+let pointPath = [];
+let pointAddInterval = 10;
+let pointAddCounter = 0;
+let currentPoint;
+
+let orientationX = 0;
+let orientationY = 0;
+
 function setup() {
   let container = document.getElementById('canvas-container');
   canvas = createCanvas(baseWidth, baseHeight);
@@ -24,6 +35,16 @@ function setup() {
 
   adjustCanvasSize();
   window.addEventListener('resize', adjustCanvasSize);
+
+  walkButtonPos = createVector(baseWidth * 0.85, baseHeight * 0.85);
+  currentPoint = createVector(baseWidth / 2, baseHeight * 0.75); // 初始點位於火的位置
+
+  if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", function (event) {
+      orientationX = event.gamma;
+      orientationY = event.beta;
+    });
+  }
 }
 
 function adjustCanvasSize() {
@@ -42,14 +63,17 @@ function draw() {
   scale(scaleFactor);
 
   drawFrame();
+  drawWalkToggle();
 
-  push();
-  translate(100, baseHeight * 0.75); // 使用邏輯高度600
-  drawAxesText();
-  drawFireText();
-  pop();
+  if (walkToggle) {
+    pointAddCounter++;
+    if (pointAddCounter >= pointAddInterval) {
+      movePointByTilt();
+      pointAddCounter = 0;
+    }
+  }
 
-  drawTouchPoints(); // 現在只處理單點觸控，無線動畫
+  drawPointsPath();
   pop();
 }
 
@@ -67,69 +91,50 @@ function drawFrame() {
   }
 }
 
-function drawAxesText() {
-  let flicker = map(sin(frameCount * 0.05), -1, 1, 80, 200);
-  let glowColor = color(0, 255, 255, flicker);
+function drawWalkToggle() {
+  textSize(walkButtonSize);
+  fill(walkToggle ? color(255, 0, 0) : color(0, 255, 0));
+  text("走", walkButtonPos.x, walkButtonPos.y);
+}
 
-  textSize(14);
-  fill(glowColor);
-  noStroke();
-
-  let exclusionRadius = 50;
-
-  for (let i = -baseWidth + 520; i < baseWidth - 120; i += 20) {
-    if (dist(i, 0, 0, 0) > exclusionRadius - 20 && i !== 0) {
-      text("點,", i + 10, 0);
-    }
-  }
-
-  for (let j = -baseHeight + 180; j < baseHeight - 460; j += 20) {
-    if (dist(0, j, 0, 0) > exclusionRadius && j !== 0 && j !== -20) {
-      text("點", 10, j);
-    }
+function mousePressed() {
+  let d = dist(mouseX * baseWidth / canvasSize, mouseY * baseHeight / canvasSize, walkButtonPos.x, walkButtonPos.y);
+  if (d < walkButtonSize) {
+    walkToggle = !walkToggle;
   }
 }
 
-function drawFireText() {
-  let flicker = map(sin(frameCount * 0.03), -1, 1, 100, 255);
-  fill(255, 100 + random(20), 0, flicker);
-  noStroke();
+function movePointByTilt() {
+  let speed = 1.5;
+  let dx = constrain(orientationX / 10, -1, 1) * speed;
+  let dy = constrain(orientationY / 10, -1, 1) * speed;
 
-  let layers = [
-    { count: 2, y: 45, size: 16 },
-    { count: 3, y: 30, size: 18 },
-    { count: 4, y: 15, size: 22 },
-    { count: 3, y: 0, size: 24 },
-    { count: 2, y: -15, size: 26 },
-    { count: 1, y: -35, size: 28 },
-  ];
+  let next = createVector(currentPoint.x + dx, currentPoint.y + dy);
 
-  for (let layer of layers) {
-    let spacing = 18;
-    let offsetX = -(layer.count - 2) * spacing / 2;
-    let windEffect = sin(frameCount * 0.1 + layer.y * 0.1) * 3;
+  // 限制在第一象限和框內
+  if (next.x < 30 || next.x > baseWidth / 2 - 30 || next.y < 30 || next.y > baseHeight / 2 - 30) return;
 
-    textSize(layer.size);
-    for (let i = 0; i < layer.count; i++) {
-      let wobble = sin(frameCount * 0.1 + i) * 1.5 + windEffect;
-      text("火", offsetX + i * spacing + wobble, layer.y);
-    }
+  if (pointPath.length === 0 || p5.Vector.dist(currentPoint, pointPath[pointPath.length - 1]) > 18) {
+    pointPath.push(currentPoint.copy());
   }
+
+  currentPoint = next;
 }
 
-// 單點觸控顯示"點"
-function drawTouchPoints() {
-  textSize(32);
-  noStroke();
-  fill(255);
+function drawPointsPath() {
+  for (let i = 0; i < pointPath.length; i++) {
+    let pos = pointPath[i].copy();
+    fill(255, 200, 200);
+    textSize(24);
+    text("點", pos.x, pos.y);
+  }
 
-  let scaleFactor = canvasSize / baseWidth;
-
-  if (touches.length === 1) {
-    let t = touches[0];
-    let x = t.x / scaleFactor;
-    let y = t.y / scaleFactor;
-    text("點", x, y);
+  // 畫目前走字位置的圓特效
+  if (walkToggle) {
+    let pulse = 8 + sin(frameCount * 0.2) * 4;
+    stroke(0, 255, 255);
+    noFill();
+    ellipse(currentPoint.x, currentPoint.y, pulse * 2);
   }
 }
 
