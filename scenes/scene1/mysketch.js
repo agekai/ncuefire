@@ -10,6 +10,7 @@ let dotFlashes = [];
 let showAxes = false;
 
 function setup() {
+  canvas.elt.style.touchAction = 'manipulation';
   let container = document.getElementById('canvas-container');
   canvas = createCanvas(600, 600);
   canvas.parent(container);
