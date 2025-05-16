@@ -1,10 +1,10 @@
 let canvas;
-let canvasSize; // 動態計算的尺寸
+let canvasSize;
 
 let annotationText = "這是第1幕的文字註解，用打字機效果逐字出現。\n你可以修改這段文字內容。";
 let annotationIndex = 0;
 let annotationElement;
-let annotationSpeed = 50; // ms per char
+let annotationSpeed = 50;
 
 let dotFlashes = [];
 let showAxes = false;
@@ -38,11 +38,9 @@ function adjustCanvasSize() {
 function draw() {
   background(0, 40);
 
-  // 用比例縮放內容，保持動畫設計的600x600比例
   let scaleFactor = canvasSize / 600;
   push();
     scale(scaleFactor);
-
     drawFrame();
 
     if (showAxes) {
@@ -52,9 +50,7 @@ function draw() {
 
     push();
       translate(100, 600 * 0.75);
-      if (showAxes) {
-        drawAxesText();
-      }
+      if (showAxes) drawAxesText();
       drawFireText();
     pop();
   pop();
@@ -96,9 +92,7 @@ function drawFireText() {
   fill(flameColor);
   noStroke();
   text("⚫", 10, 0);
-  if (showAxes) {
-    text("原", 10, 0);
-  }
+  if (showAxes) text("原", 10, 0);
 }
 
 function createDotFlashes() {
@@ -138,11 +132,13 @@ function mousePressed() {
   }
 }
 
-function touchStarted() {
-  for (let t of touches) {
+function touchStarted(event) {
+  if (touches.length === 1) {
+    let t = touches[0];
     handleAxesToggle(t.x, t.y);
+    event.preventDefault(); // 僅阻止單指點擊預設行為
   }
-  return false; // 避免觸控後還觸發 mousePressed
+  // 不 return false，讓雙指縮放正常運作
 }
 
 function handleAxesToggle(x, y) {
@@ -155,7 +151,6 @@ function handleAxesToggle(x, y) {
     showAxes = !showAxes;
   }
 }
-
 
 function typeWriter() {
   if (annotationIndex < annotationText.length) {
