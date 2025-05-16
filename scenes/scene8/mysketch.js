@@ -12,6 +12,9 @@ let angleX = 0;
 let angleY = 0;
 let vertices = [];
 
+let cubeRotating = false;
+let toggleTextX, toggleTextY;
+
 function setup() {
   let container = document.getElementById('canvas-container');
   canvas = createCanvas(baseWidth, baseHeight);
@@ -51,17 +54,16 @@ function draw() {
   push();
   scale(scaleFactor);
 
-	drawFrame();
+  drawFrame();
 
-  // 原點火焰與線軸
   push();
-  translate(100, baseHeight * 0.75); // 使用邏輯高度600
+  translate(100, baseHeight * 0.75);
   drawAxesText();
   drawFireText();
   pop();
 
-  // 第一象限立方體
   drawCubeText();
+  drawToggleText();
 
   pop();
 }
@@ -92,7 +94,7 @@ function drawAxesText() {
 
   for (let i = -baseWidth + 520; i < baseWidth - 120; i += 20) {
     if (dist(i, 0, 0, 0) > exclusionRadius - 20 && i !== 0) {
-      text("點,", i + 10, 0);
+      text("點", i + 10, 0);
     }
   }
 
@@ -132,7 +134,7 @@ function drawFireText() {
 
 function drawCubeText() {
   push();
-  translate(baseWidth * 0.6, baseHeight * 0.35); // 移到第一象限
+  translate(baseWidth * 0.6, baseHeight * 0.35);
 
   let projected = [];
 
@@ -146,7 +148,7 @@ function drawCubeText() {
     let tempX = x * cos(angleY) - z * sin(angleY);
     let tempZ = x * sin(angleY) + z * cos(angleY);
 
-    let scale = 200 / (tempZ + 3); // 放大立方體
+    let scale = 200 / (tempZ + 3);
     let projectedX = tempX * scale;
     let projectedY = y * scale;
 
@@ -157,12 +159,10 @@ function drawCubeText() {
   drawASCIIEdge(1, 3, projected);
   drawASCIIEdge(3, 2, projected);
   drawASCIIEdge(2, 0, projected);
-
   drawASCIIEdge(4, 5, projected);
   drawASCIIEdge(5, 7, projected);
   drawASCIIEdge(7, 6, projected);
   drawASCIIEdge(6, 4, projected);
-
   drawASCIIEdge(0, 4, projected);
   drawASCIIEdge(1, 5, projected);
   drawASCIIEdge(2, 6, projected);
@@ -176,8 +176,10 @@ function drawCubeText() {
 
   pop();
 
-  angleX += 0.02;
-  angleY += 0.03;
+  if (cubeRotating) {
+    angleX += 0.02;
+    angleY += 0.03;
+  }
 }
 
 function drawASCIIEdge(i, j, projected) {
@@ -192,6 +194,43 @@ function drawASCIIEdge(i, j, projected) {
     textSize(14);
     text("線", lerpX, lerpY);
   }
+}
+
+function drawToggleText() {
+  textSize(16);
+  textAlign(RIGHT, BOTTOM);
+
+  let statusColor = cubeRotating ? color(255, 50, 50) : color(50, 255, 100);
+  fill(statusColor);
+  noStroke();
+
+  let margin = 20;
+  toggleTextX = baseWidth - margin;
+  toggleTextY = baseHeight - margin;
+
+  text("停止旋轉", toggleTextX, toggleTextY);
+}
+
+function mousePressed() {
+  let scaleFactor = canvasSize / baseWidth;
+  let mx = mouseX / scaleFactor;
+  let my = mouseY / scaleFactor;
+
+  let textWidthEst = 80;
+  let textHeightEst = 24;
+
+  if (
+    mx > toggleTextX - textWidthEst &&
+    mx < toggleTextX &&
+    my > toggleTextY - textHeightEst &&
+    my < toggleTextY
+  ) {
+    cubeRotating = !cubeRotating;
+  }
+}
+
+function deviceShaken() {
+  cubeRotating = true;
 }
 
 function typeWriter() {
