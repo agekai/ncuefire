@@ -239,7 +239,7 @@ function touchStarted() {
   if (touches.length > 0) {
     startDragging(touches[0].x, touches[0].y);
   }
-  //return false; // 阻止瀏覽器觸控滾動
+  return false; // 阻止瀏覽器觸控滾動
 }
 
 function touchEnded() {
