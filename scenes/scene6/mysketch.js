@@ -168,18 +168,18 @@ function handleInput(x, y) {
   }
 }
 
-// 滑鼠點擊
+// 滑鼠按下（只會有一點）
 function mousePressed() {
-  if (!inputCooldown) {
+  if (!inputCooldown && touches.length === 0) {  // touches.length === 0 表示是滑鼠不是手指
     handleInput(mouseX, mouseY);
     inputCooldown = true;
-    setTimeout(() => inputCooldown = false, 100); // 簡單冷卻時間防多次觸發
+    setTimeout(() => inputCooldown = false, 100);
   }
 }
 
-// 觸控點擊
+// 觸控（可多點）
 function touchStarted() {
-  if (!inputCooldown) {
+  if (!inputCooldown && touches.length > 0) {
     for (let t of touches) {
       handleInput(t.x, t.y);
     }
