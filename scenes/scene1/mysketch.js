@@ -142,7 +142,7 @@ function touchStarted() {
   for (let t of touches) {
     handleAxesToggle(t.x, t.y);
   }
-  //return false; // 避免觸控後還觸發 mousePressed
+  return false; // 避免觸控後還觸發 mousePressed
 }
 
 function handleAxesToggle(x, y) {
