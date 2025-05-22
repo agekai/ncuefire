@@ -229,6 +229,8 @@ function endDragging() {
   draggingIndex = -1;
 }
 
+let isTouch = false;
+
 function mousePressed() {
   startDragging(mouseX, mouseY);
   return false;
@@ -240,6 +242,7 @@ function mouseReleased() {
 }
 
 function touchStarted() {
+  isTouch = true;
   if (touches.length > 0) {
     startDragging(touches[0].x, touches[0].y);
   }
