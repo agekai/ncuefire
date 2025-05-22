@@ -232,6 +232,11 @@ function endDragging() {
 let isTouch = false;
 
 function mousePressed() {
+  if (isTouch) {
+    // 如果剛剛是觸控，略過這次 mousePressed
+    isTouch = false;
+    return;
+  }
   startDragging(mouseX, mouseY);
   return false;
 }
