@@ -39,14 +39,16 @@
       max-height: 100%;
     }
     #annotation {
-      height: 14vh;
-      margin-bottom: 20px;
+      height: 16vh;
+      margin-top: 1vh;
+      margin-bottom: 1vh;
       text-align: center;
-      font-size: 1.2rem;
-      line-height: 1.4;
+      font-size: 1rem;
+      line-height: 1.2;
       white-space: pre-wrap;
       overflow-y: auto;
       flex-shrink: 0;
+      max-width: 18em;      /* 約18個中文字（1em 約等於1個中文字寬） */
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
