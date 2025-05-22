@@ -199,6 +199,26 @@ function drawLineAnimation(p1, p2) {
   }
 }
 
+let isTouch = false;
+
+function mousePressed() {
+  if (isTouch) {
+    isTouch = false;
+    return;
+  }
+
+  if (touches.length === 0 && firstTouch === null) {
+    let x = mouseX / (canvasSize / baseWidth);
+    let y = mouseY / (canvasSize / baseHeight);
+    firstTouch = createVector(x, y);
+  }
+}
+
+function touchStarted() {
+  isTouch = true;
+  return false; // 必須阻止冒泡，防止 mousePressed 被觸發
+}
+
 function typeWriter() {
   if (annotationIndex < annotationText.length) {
     annotationElement.textContent += annotationText.charAt(annotationIndex);
