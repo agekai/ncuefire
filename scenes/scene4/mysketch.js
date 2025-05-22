@@ -273,7 +273,7 @@ function mouseReleased() {
 
 function touchStarted() {
   mousePressed();
-  return false;
+  //return false;
 }
 function touchMoved() {
   mouseDragged();
