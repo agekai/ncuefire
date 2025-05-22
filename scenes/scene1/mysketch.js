@@ -14,6 +14,10 @@ function setup() {
   canvas = createCanvas(600, 600);
   canvas.parent(container);
 
+  canvas.elt.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+  }, { passive: false });
+
   textAlign(CENTER, CENTER);
   textFont("Noto Serif TC");
   noFill();
