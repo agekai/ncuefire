@@ -203,7 +203,7 @@ function touchStarted() {
   for (let t of touches) {
     handleFireToggle(t.x, t.y);
   }
-  //return false; // 阻止瀏覽器預設觸控行為，例如縮放、滑動
+  return false; // 阻止瀏覽器預設觸控行為，例如縮放、滑動
 }
 
 function handleFireToggle(x, y) {
