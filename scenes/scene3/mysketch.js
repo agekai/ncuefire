@@ -13,10 +13,6 @@ function setup() {
   canvas = createCanvas(baseWidth, baseHeight);
   canvas.parent(container);
 
-  canvas.elt.addEventListener('touchstart', function (e) {
-    e.preventDefault();
-  }, { passive: false });
-
   textAlign(CENTER, CENTER);
   textFont("Noto Serif TC");
   noFill();
@@ -121,6 +117,13 @@ function drawFireText() {
   }
 }
 
+let margin = 20;  // 框邊距
+
+function isInFrame(x, y) {
+  let margin = 20;
+  return x > margin && x < baseWidth - margin && y > margin && y < baseHeight - margin;
+}
+
 let firstTouch = null;
 let secondTouch = null;
 let lineProgress = 0;
@@ -138,26 +141,38 @@ function drawTouchPoints() {
     let x = t.x / scaleFactor;
     let y = t.y / scaleFactor;
 
-    firstTouch = createVector(x, y);
-    secondTouch = null;
-    lineProgress = 0;
-    text("點", x, y);
+    if (isInFrame(x, y)) {
+      firstTouch = createVector(x, y);
+      secondTouch = null;
+      lineProgress = 0;
+      text("點", x, y);
+    } else {
+      firstTouch = null;
+      secondTouch = null;
+      lineProgress = 0;
+    }
   } 
   else if (touches.length === 2) {
-    if (firstTouch === null) {
-      let x0 = touches[0].x / scaleFactor;
-      let y0 = touches[0].y / scaleFactor;
-      firstTouch = createVector(x0, y0);
-    }
-
+    let x0 = touches[0].x / scaleFactor;
+    let y0 = touches[0].y / scaleFactor;
     let x1 = touches[1].x / scaleFactor;
     let y1 = touches[1].y / scaleFactor;
-    secondTouch = createVector(x1, y1);
 
-    text("點", firstTouch.x, firstTouch.y);
-    text("點", secondTouch.x, secondTouch.y);
+    if (isInFrame(x0, y0) && isInFrame(x1, y1)) {
+      if (firstTouch === null) {
+        firstTouch = createVector(x0, y0);
+      }
+      secondTouch = createVector(x1, y1);
 
-    drawLineAnimation(firstTouch, secondTouch);
+      text("點", firstTouch.x, firstTouch.y);
+      text("點", secondTouch.x, secondTouch.y);
+
+      drawLineAnimation(firstTouch, secondTouch);
+    } else {
+      firstTouch = null;
+      secondTouch = null;
+      lineProgress = 0;
+    }
   } 
   else {
     firstTouch = null;
