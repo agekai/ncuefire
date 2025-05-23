@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>白沙火舞社大成．點</title> 
+  <title>白沙火舞社大成．點</title>
   <style>
     html {
       height: auto;
@@ -21,6 +21,55 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
+
+    /* === 封面區 === */
+    #cover {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      cursor: pointer;
+      transition: opacity 1s ease;
+    }
+    #cover-text {
+      position: absolute;
+      bottom: 10vh;
+      width: 100%;
+      text-align: center;
+      font-size: 2em;
+      color: white;
+      font-family: "Noto Serif TC", serif;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+
+    #cover img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    #cover.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #dialogue-image {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90vw;
+      max-height: 60vh;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 999;
+    }
+    #dialogue-image.show {
+      opacity: 1;
+    }
     #dialogue-box {
       position: fixed;
       bottom: 0;
@@ -32,6 +81,7 @@
       font-size: 1.2em;
       z-index: 1000;
       transition: color 0.3s;
+      display: none;
     }
     #dialogue-box:hover {
       cursor: pointer;
@@ -110,12 +160,25 @@
 </head>
 <body>
 
+<!-- ✅ 封面圖片 -->
+<div id="cover" onclick="startIntro()">
+  <img src="images/cover.jpg" alt="封面圖">
+  <div id="cover-text">「白沙火舞社」</div>
+</div>
+
+<!-- ✅ 頁首進度條 -->
 <div id="progress-container">
   <div id="progress-bar"></div>
 </div>
+
+<!-- ✅ 對話圖與文字 -->
+<img id="dialogue-image" src="" alt="對話圖片">
 <div id="dialogue-box" onclick="nextDialogue()">點一下開始節目冒險！</div>
+
+<!-- ✅ 返回鍵 -->
 <button id="back-button" onclick="goBack()">← 返回地圖</button>
 
+<!-- ✅ 地圖與各幕按鈕 -->
 <div id="map">
   <button class="scene-button" onclick="loadScene(0)">⚫ 序章：原點</button>
   <button class="scene-button" onclick="loadScene(1)">🔥 點火</button>
@@ -129,25 +192,54 @@
   <button class="scene-button" onclick="loadScene(9)">🔴 終章：句點</button>
 </div>
 
+<!-- ✅ iframe 載入動畫頁面 -->
 <iframe id="scene-frame"></iframe>
 
 <script>
 const dialogues = [
-  "歡迎來到《原點火焰》的世界。",
+  "歡迎來到白沙火舞社大型成果發表《點》的世界。",
   "這不只是一場表演，而是一場旅程。",
   "你將踏上十段節目的探索之路。",
   "每一幕，都藏有一段火焰的記憶。",
   "準備好了嗎？點擊開始。"
 ];
+
+const dialogueImages = [
+  "images/image1.jpg",
+  "images/image2.jpg",
+  "images/image3.jpg",
+  "images/image4.jpg",
+  "images/image5.jpg"
+];
+
 let index = 0;
 let visitedScenes = new Set();
 
+function startIntro() {
+  const cover = document.getElementById("cover");
+  cover.classList.add("fade-out");
+  setTimeout(() => {
+    cover.style.display = "none";
+    document.getElementById("dialogue-box").style.display = "block";
+    nextDialogue();
+  }, 1000);
+}
+
 function nextDialogue() {
   const box = document.getElementById("dialogue-box");
+  const image = document.getElementById("dialogue-image");
+
   if (index < dialogues.length) {
-    box.innerText = dialogues[index++];
+    box.innerText = dialogues[index];
+    image.classList.remove("show");
+    image.src = dialogueImages[index];
+    setTimeout(() => {
+      image.classList.add("show");
+    }, 10);
+    index++;
   } else {
     box.style.display = 'none';
+    image.style.display = 'none';
     document.getElementById("map").style.display = 'flex';
   }
 }
