@@ -99,7 +99,7 @@ function drawSingleFireAtOrigin() {
 	
   textSize(35);
   fill(glowColor);
-	text("🕯", 10, 20);
+	text("🔥", 10, 20);
 }
 
 function drawAxesText() {
