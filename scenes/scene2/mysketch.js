@@ -95,7 +95,7 @@ function drawSingleFireAtOrigin() {
   
   textSize(30);
   fill("	#9F5000");
-  text("柴", 10, -20);
+  text("盆", 10, -20);
 	
   textSize(35);
   fill(glowColor);
