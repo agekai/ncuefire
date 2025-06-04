@@ -3,7 +3,7 @@ let canvasSize;
 let baseWidth = 600;
 let baseHeight = 600;
 
-let annotationText = "點燃的瞬間是故事的開始。\n(🔍互動提示：點然火盆，留住餘光)";
+let annotationText = "點生光、光生火、火生舞\n(🔍互動提示：點然火盆，留住餘光)";
 let annotationIndex = 0;
 let annotationElement;
 let annotationSpeed = 50;
