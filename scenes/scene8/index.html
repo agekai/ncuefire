@@ -65,6 +65,16 @@
     // 傳送訊息給父頁面，通知「子頁面被點擊一次」
     window.parent.postMessage({ type: "childClick" }, "*");
   });
-</script> 
+</script>
+<!-- 📦 Canvas 容器 -->
+<div id="canvas-container" style="width: 100vw; height: 100vh;"></div>
+
+<!-- 💬 提示區 -->
+<div id="annotation" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: white; font-size: 18px;"></div>
+
+<!-- 🛎️ iOS 裝置需要的啟用按鈕 -->
+<button onclick="requestMotionPermission()" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; font-size: 16px;">
+  啟用裝置感應
+</button>  
 </body>
 </html>
