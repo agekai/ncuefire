@@ -12,10 +12,10 @@ let angleX = 0;
 let angleY = 0;
 let vertices = [];
 
-let rotationSpeedX = 0;
-let rotationSpeedY = 0;
-let decay = 0.98;
-let shakeThreshold = 0.5;
+let targetRotationSpeedX = 0;
+let targetRotationSpeedY = 0;
+let currentRotationSpeedX = 0;
+let currentRotationSpeedY = 0;
 
 function setup() {
   let container = document.getElementById('canvas-container');
@@ -44,18 +44,12 @@ function setup() {
     [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]
   ];
 
+  // 📱 啟用感應器事件
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-    let button = createButton('啟用感應控制');
-    button.position(10, 10);
-    button.style('z-index', '1000');
-    button.mousePressed(async () => {
-      let response = await DeviceMotionEvent.requestPermission();
-      if (response === 'granted') {
-        window.addEventListener('devicemotion', handleMotion);
-        button.remove();
-      }
-    });
+    // iOS 使用者需手動點擊按鈕授權
+    console.log("請點擊啟用裝置感應按鈕以授權");
   } else {
+    // Android 自動啟用
     window.addEventListener('devicemotion', handleMotion);
   }
 }
@@ -77,12 +71,14 @@ function draw() {
 
   drawFrame();
 
+  // 原點火焰與線軸
   push();
   translate(100, baseHeight * 0.75);
   drawAxesText();
   drawFireText();
   pop();
 
+  // 第一象限立方體
   drawCubeText();
 
   pop();
@@ -196,17 +192,14 @@ function drawCubeText() {
     text("點", pt[0], pt[1]);
   }
 
-  // 加入旋轉角度（由感應器控制）
-  angleX += rotationSpeedX;
-  angleY += rotationSpeedY;
-
-  // 慣性減速
-  rotationSpeedX *= decay;
-  rotationSpeedY *= decay;
-  if (abs(rotationSpeedX) < 0.001) rotationSpeedX = 0;
-  if (abs(rotationSpeedY) < 0.001) rotationSpeedY = 0;
-
   pop();
+
+  // ➕ 緩慢逼近轉速
+  currentRotationSpeedX = lerp(currentRotationSpeedX, targetRotationSpeedX, 0.05);
+  currentRotationSpeedY = lerp(currentRotationSpeedY, targetRotationSpeedY, 0.05);
+
+  angleX += currentRotationSpeedX;
+  angleY += currentRotationSpeedY;
 }
 
 function drawASCIIEdge(i, j, projected) {
@@ -223,22 +216,39 @@ function drawASCIIEdge(i, j, projected) {
   }
 }
 
-function handleMotion(event) {
-  let acc = event.accelerationIncludingGravity;
-  if (acc) {
-    let totalAcceleration = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-
-    if (totalAcceleration > shakeThreshold) {
-      rotationSpeedX += random(-0.02, 0.02) * (totalAcceleration - shakeThreshold);
-      rotationSpeedY += random(-0.02, 0.02) * (totalAcceleration - shakeThreshold);
-    }
-  }
-}
-
 function typeWriter() {
   if (annotationIndex < annotationText.length) {
     annotationElement.textContent += annotationText.charAt(annotationIndex);
     annotationIndex++;
     setTimeout(typeWriter, annotationSpeed);
+  }
+}
+
+function handleMotion(event) {
+  let acc = event.accelerationIncludingGravity;
+  let magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y);
+
+  if (magnitude > 2.5) {
+    targetRotationSpeedX = 0.02;
+    targetRotationSpeedY = 0.03;
+  } else {
+    targetRotationSpeedX = 0;
+    targetRotationSpeedY = 0;
+  }
+}
+
+// 🔒 給 iOS 裝置點擊授權
+function requestMotionPermission() {
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission().then(response => {
+      if (response === 'granted') {
+        window.addEventListener('devicemotion', handleMotion);
+        alert("裝置感應啟用成功！");
+      } else {
+        alert("未授權使用感應器");
+      }
+    }).catch(console.error);
+  } else {
+    alert("此裝置不支援或已自動啟用。");
   }
 }
