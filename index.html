@@ -44,7 +44,7 @@
     }
     #cover-text1 {
       position: absolute;
-      bottom: 10vh;
+      bottom: 15vh;
       width: 100%;
       text-align: center;
       font-size: 2em;
@@ -54,7 +54,7 @@
     }
     #cover-text2 {
       position: absolute;
-      bottom: 2vh;
+      bottom: 8vh;
       width: 100%;
       text-align: center;
       font-size: 1em;
@@ -107,15 +107,19 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 20px;
+      background: none;               /* 拿掉背景色 */
+      color: white;                   /* 白色文字較清晰 */
+      padding: 30px 20px 50px;        /* 多一點下方空間 */
       box-sizing: border-box;
       text-align: center;
-      font-size: 1.2em;
+      font-size: 2em;               /* 稍微大一點 */
       z-index: 1000;
       transition: color 0.3s;
       display: none;
+      pointer-events: none;           /* 不可點擊，避免誤認為按鈕 */
+      text-shadow: 1px 1px 5px black; /* 增加可讀性（黑色陰影） */
     }
+
     #dialogue-box:hover {
       cursor: pointer;
       color: #f90;
@@ -134,7 +138,7 @@
       padding: 15px 30px;
       border-radius: 12px;
       background-color: #333;
-      color: white;
+      color: rgb(165, 150, 150);
       font-size: 1.1em;
       border: 2px solid #666;
       width: 80%;
@@ -144,7 +148,9 @@
     .scene-button:hover {
       background-color: #555;
     }
-
+    .scene-button.active {
+      color: #f90; /* 點擊後顯示的文字顏色，可自由更改 */
+    }
     iframe {
       width: 100vw;
       height: 100vh;
@@ -256,17 +262,18 @@
 
 <!-- 地圖 -->
 <div id="map">
-  <button class="scene-button" onclick="loadScene(0)">⚫ 序章：原點</button>
-  <button class="scene-button" onclick="loadScene(1)">🔥 點火</button>
-  <button class="scene-button" onclick="loadScene(2)">➖ y=ax+b</button>
-  <button class="scene-button" onclick="loadScene(3)">🔍 焦點</button>
-  <button class="scene-button" onclick="loadScene(4)">🙂 逗點</button>
-  <button class="scene-button" onclick="loadScene(5)">〰 反曲點</button>
-  <button class="scene-button" onclick="loadScene(6)">🍰 點心</button>
-  <button class="scene-button" onclick="loadScene(7)">🔳 體</button>
-  <button class="scene-button" onclick="loadScene(8)">🏁 中點</button>
-  <button class="scene-button" onclick="loadScene(9)">🔴 終章：句點</button>
+  <button class="scene-button" onclick="selectScene(this, 0)">⚫ 序章：原點</button>
+  <button class="scene-button" onclick="selectScene(this, 1)">🔥 點火</button>
+  <button class="scene-button" onclick="selectScene(this, 2)">➖ y=ax+b</button>
+  <button class="scene-button" onclick="selectScene(this, 3)">🔍 焦點</button>
+  <button class="scene-button" onclick="selectScene(this, 4)">🙂 逗點</button>
+  <button class="scene-button" onclick="selectScene(this, 5)">〰 反曲點</button>
+  <button class="scene-button" onclick="selectScene(this, 6)">🍰 點心</button>
+  <button class="scene-button" onclick="selectScene(this, 7)">🔳 體</button>
+  <button class="scene-button" onclick="selectScene(this, 8)">🏁 中點</button>
+  <button class="scene-button" onclick="selectScene(this, 9)">🔴 終章：句點</button>
 </div>
+
 
 <!-- 載入動畫 -->
 <iframe id="scene-frame"></iframe>
@@ -303,6 +310,22 @@
 
 <!-- 腳本 -->
 <script>
+let isTyping = false;
+let typingTimer;
+
+// 打字機效果
+function typeWriter(text, element, i = 0) {
+  isTyping = true;
+  if (i === 0) element.innerText = "";  // 開始前清空
+
+  if (i < text.length) {
+    element.innerText += text.charAt(i);
+    typingTimer = setTimeout(() => typeWriter(text, element, i + 1), 50);
+  } else {
+    isTyping = false;
+  }
+}
+
 const dialogues = [
   "歡迎來到白沙火舞社大型成果發表《點》。",
   "這不只是一場表演，而是一場旅程。",
@@ -335,11 +358,22 @@ function startIntro() {
 function nextDialogue() {
   const box = document.getElementById("dialogue-box");
   const image = document.getElementById("dialogue-image");
+
+  // 如果還在打字，直接跳過打完
+  if (isTyping) {
+    clearTimeout(typingTimer);
+    box.innerText = dialogues[index - 1];  // 顯示完整上一句
+    isTyping = false;
+    return;
+  }
+
   if (index < dialogues.length) {
-    box.innerText = dialogues[index];
     image.classList.remove("show");
     image.src = dialogueImages[index];
     setTimeout(() => image.classList.add("show"), 10);
+
+    // 打字機開始
+    typeWriter(dialogues[index], box);
     index++;
   } else {
     box.style.display = 'none';
@@ -347,6 +381,7 @@ function nextDialogue() {
     document.getElementById("map").style.display = 'flex';
   }
 }
+
 
 document.getElementById("dialogue-box").addEventListener("mouseenter", () => {
   if (index === 0) {
@@ -420,6 +455,18 @@ function countClick() {
 // 全域監聽所有點擊事件
 document.addEventListener("click", countClick);
 
+document.addEventListener("click", () => {
+  if (document.getElementById("dialogue-box").style.display === "block") {
+    nextDialogue();
+  }
+});
+
+function selectScene(button, sceneIndex) {
+    // 加上目前點擊的按鈕 active class
+    button.classList.add('active');
+    // 載入該場景
+    loadScene(sceneIndex);
+}
 
 </script>
 </body>
