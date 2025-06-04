@@ -438,7 +438,7 @@ function showFinale() {
   document.getElementById("finale").style.display = 'flex';
   const summary = document.getElementById("click-summary");
   summary.innerHTML = `這趟旅途中，您共《點》擊了 
-    <span style="color: #f90; font-weight: bold;">${clickCount}</span> 次。<br>
+    <span style="color: #f90; font-weight: bold;">${totalClicks}</span> 次。<br>
     每一次觸碰，都是火花的綻放；<br>每一段探索，都是故事的延續。<br>
     謝謝您陪我們完成這趟旅程！`;
 }
@@ -448,13 +448,32 @@ function updateProgressBar() {
   document.getElementById("progress-bar").style.width = progress + "%";
 }
 
-let clickCount = 0;
-function countClick() {
-  clickCount++;
-}
+let totalClicks = 0;
 
-// 全域監聽所有點擊事件
-document.addEventListener("click", countClick);
+// 父頁面自身點擊監聽
+document.addEventListener("click", () => {
+  totalClicks++;
+  console.log("父頁面點擊，總點擊數: ", totalClicks);
+  updateClickDisplay();
+});
+
+// 監聽來自子頁面的訊息
+window.addEventListener("message", (event) => {
+  const data = event.data;
+  if (data && data.type === "childClick") {
+    totalClicks++;
+    console.log("子頁面點擊，總點擊數: ", totalClicks);
+    updateClickDisplay();
+  }
+});
+
+// 顯示點擊數的函式
+function updateClickDisplay() {
+  const display = document.getElementById("clickCountDisplay");
+  if(display) {
+    display.textContent = `總點擊數：${totalClicks}`;
+  }
+}
 
 document.addEventListener("click", () => {
   if (document.getElementById("dialogue-box").style.display === "block") {
@@ -471,4 +490,6 @@ function selectScene(button, sceneIndex) {
 
 </script>
 </body>
+<div id="clickCountDisplay" style="font-size:20px; font-weight:bold;">總點擊數：0</div>
+
 </html>
