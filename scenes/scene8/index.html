@@ -37,8 +37,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 66vh;  /* 約2/3視窗高度 */
+      height: 66vh;
       overflow: hidden;
+      position: relative;
     }
     canvas {
       display: block;
@@ -56,31 +57,69 @@
       overflow-y: auto;
       flex-shrink: 0;
     }
+    #permission-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff6600;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      z-index: 10;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
 </head>
 <body>
   <div id="title">第八幕：體</div>
-  <div id="canvas-container"></div>
+  <div id="canvas-container">
+    <!-- 👇 iOS 裝置使用者需要點擊授權感應器 -->
+    <button id="permission-btn" onclick="requestMotionPermission()">啟用裝置感應</button>
+  </div>
   <div id="annotation"></div>
 
+  <!-- 🔧 你的 p5.js 程式 -->
   <script src="mysketch.js"></script>
 
-<script>
-  function reportClickToParent() {
-    // 將點擊事件傳給父頁面
-    window.parent.postMessage({ type: "childClick" }, "*");
-  }
+  <script>
+    // 👉 傳送點擊事件給父頁面
+    function reportClickToParent() {
+      window.parent.postMessage({ type: "childClick" }, "*");
+    }
 
-  // 滑鼠點擊事件（桌機）
-  document.addEventListener("click", reportClickToParent);
+    document.addEventListener("click", reportClickToParent);
+    document.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      reportClickToParent();
+    }, { passive: false });
 
-  // 觸控結束事件（手機／平板）
-  document.addEventListener("touchend", (e) => {
-    // 避免點兩次（某些瀏覽器會先觸控後又觸發 click）
-    e.preventDefault();
-    reportClickToParent();
-  }, { passive: false });
-</script>
+    // 👉 感應器授權函式（iOS 專用）
+    function requestMotionPermission() {
+      const btn = document.getElementById('permission-btn');
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('devicemotion', handleMotion);
+              alert('裝置感應已啟用！');
+              btn.style.display = 'none';
+            } else {
+              alert('未授權感應器');
+            }
+          })
+          .catch(error => {
+            console.error(error);
+            alert('感應器啟用失敗');
+          });
+      } else {
+        // Android 或非需授權設備
+        btn.style.display = 'none';
+        alert('裝置自動支援感應器或不需授權');
+      }
+    }
+  </script>
 </body>
 </html>
