@@ -44,12 +44,8 @@ function setup() {
     [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]
   ];
 
-  // 📱 啟用感應器事件
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-    // iOS 使用者需手動點擊按鈕授權
-    console.log("請點擊啟用裝置感應按鈕以授權");
-  } else {
-    // Android 自動啟用
+  // 📱 自動啟用裝置感應器（僅限非 iOS）
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission !== 'function') {
     window.addEventListener('devicemotion', handleMotion);
   }
 }
@@ -194,7 +190,6 @@ function drawCubeText() {
 
   pop();
 
-  // ➕ 緩慢逼近轉速
   currentRotationSpeedX = lerp(currentRotationSpeedX, targetRotationSpeedX, 0.05);
   currentRotationSpeedY = lerp(currentRotationSpeedY, targetRotationSpeedY, 0.05);
 
@@ -237,7 +232,7 @@ function handleMotion(event) {
   }
 }
 
-// 🔒 給 iOS 裝置點擊授權
+// 🔓 點擊畫面任意處後授權感應器（給 iOS 裝置）
 function requestMotionPermission() {
   if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission().then(response => {
