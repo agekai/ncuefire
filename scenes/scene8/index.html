@@ -47,7 +47,7 @@
       display: block;
       max-width: 90%;
       max-height: 100%;
-      pointer-events: none; /* ✅ 讓觸控穿透 canvas */
+      pointer-events: none;
     }
     #annotation {
       height: 14vh;
@@ -60,28 +60,12 @@
       overflow-y: auto;
       flex-shrink: 0;
     }
-    #permission-btn {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px 20px;
-      font-size: 1rem;
-      background: #ff6600;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      z-index: 9999; /* ✅ 確保按鈕在最上層 */
-      display: none;
-    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
 </head>
 <body>
   <div id="title">第八幕：體</div>
-  <div id="canvas-container">
-    <button id="permission-btn" onclick="requestMotionPermission()">啟用裝置感應</button>
-  </div>
+  <div id="canvas-container"></div>
   <div id="annotation"></div>
 
   <script src="mysketch.js"></script>
@@ -101,34 +85,34 @@
       return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     }
 
-    window.addEventListener("load", () => {
-      const btn = document.getElementById('permission-btn');
+    // 將點擊整個畫面作為觸發授權的方式
+    let permissionRequested = false;
+
+    function handleFirstUserInteraction() {
       if (
         isIOSDevice() &&
         typeof DeviceMotionEvent !== 'undefined' &&
-        typeof DeviceMotionEvent.requestPermission === 'function'
+        typeof DeviceMotionEvent.requestPermission === 'function' &&
+        !permissionRequested
       ) {
-        btn.style.display = 'block';
+        permissionRequested = true;
+        DeviceMotionEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('devicemotion', handleMotion);
+              console.log('📱 裝置感應啟用成功');
+            } else {
+              console.log('📱 使用者未授權感應器');
+            }
+          })
+          .catch(err => {
+            console.error('感應器啟用失敗：', err);
+          });
       }
-    });
-
-    function requestMotionPermission() {
-      const btn = document.getElementById('permission-btn');
-      DeviceMotionEvent.requestPermission()
-        .then(response => {
-          if (response === 'granted') {
-            window.addEventListener('devicemotion', handleMotion);
-            alert('裝置感應已啟用！');
-            btn.style.display = 'none';
-          } else {
-            alert('未授權感應器');
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          alert('感應器啟用失敗');
-        });
     }
+
+    window.addEventListener('click', handleFirstUserInteraction);
+    window.addEventListener('touchend', handleFirstUserInteraction);
   </script>
 </body>
 </html>
