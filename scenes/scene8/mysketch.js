@@ -12,6 +12,11 @@ let angleX = 0;
 let angleY = 0;
 let vertices = [];
 
+let targetRotationSpeedX = 0;
+let targetRotationSpeedY = 0;
+let currentRotationSpeedX = 0;
+let currentRotationSpeedY = 0;
+
 function setup() {
   let container = document.getElementById('canvas-container');
   canvas = createCanvas(baseWidth, baseHeight);
@@ -38,6 +43,15 @@ function setup() {
     [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1],
     [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]
   ];
+
+  // 📱 啟用感應器事件
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    // iOS 使用者需手動點擊按鈕授權
+    console.log("請點擊啟用裝置感應按鈕以授權");
+  } else {
+    // Android 自動啟用
+    window.addEventListener('devicemotion', handleMotion);
+  }
 }
 
 function adjustCanvasSize() {
@@ -55,11 +69,11 @@ function draw() {
   push();
   scale(scaleFactor);
 
-	drawFrame();
+  drawFrame();
 
   // 原點火焰與線軸
   push();
-  translate(100, baseHeight * 0.75); // 使用邏輯高度600
+  translate(100, baseHeight * 0.75);
   drawAxesText();
   drawFireText();
   pop();
@@ -136,7 +150,7 @@ function drawFireText() {
 
 function drawCubeText() {
   push();
-  translate(baseWidth * 0.6, baseHeight * 0.35); // 移到第一象限
+  translate(baseWidth * 0.6, baseHeight * 0.35);
 
   let projected = [];
 
@@ -150,7 +164,7 @@ function drawCubeText() {
     let tempX = x * cos(angleY) - z * sin(angleY);
     let tempZ = x * sin(angleY) + z * cos(angleY);
 
-    let scale = 200 / (tempZ + 3); // 放大立方體
+    let scale = 200 / (tempZ + 3);
     let projectedX = tempX * scale;
     let projectedY = y * scale;
 
@@ -180,8 +194,12 @@ function drawCubeText() {
 
   pop();
 
-  angleX += 0.02;
-  angleY += 0.03;
+  // ➕ 緩慢逼近轉速
+  currentRotationSpeedX = lerp(currentRotationSpeedX, targetRotationSpeedX, 0.05);
+  currentRotationSpeedY = lerp(currentRotationSpeedY, targetRotationSpeedY, 0.05);
+
+  angleX += currentRotationSpeedX;
+  angleY += currentRotationSpeedY;
 }
 
 function drawASCIIEdge(i, j, projected) {
@@ -203,5 +221,34 @@ function typeWriter() {
     annotationElement.textContent += annotationText.charAt(annotationIndex);
     annotationIndex++;
     setTimeout(typeWriter, annotationSpeed);
+  }
+}
+
+function handleMotion(event) {
+  let acc = event.accelerationIncludingGravity;
+  let magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y);
+
+  if (magnitude > 2.5) {
+    targetRotationSpeedX = 0.02;
+    targetRotationSpeedY = 0.03;
+  } else {
+    targetRotationSpeedX = 0;
+    targetRotationSpeedY = 0;
+  }
+}
+
+// 🔒 給 iOS 裝置點擊授權
+function requestMotionPermission() {
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission().then(response => {
+      if (response === 'granted') {
+        window.addEventListener('devicemotion', handleMotion);
+        alert("裝置感應啟用成功！");
+      } else {
+        alert("未授權使用感應器");
+      }
+    }).catch(console.error);
+  } else {
+    alert("此裝置不支援或已自動啟用。");
   }
 }
