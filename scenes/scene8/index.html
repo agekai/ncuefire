@@ -10,7 +10,7 @@
       src: url('fonts/ChenYuluoyan-2.0-Thin.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
-    }          
+    }
     html, body {
       margin: 0; padding: 0; height: 100%;
       display: flex; flex-direction: column;
@@ -18,11 +18,13 @@
       background: #000;
       color: #0ff;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
       overflow: hidden;
-      touch-action: none;
+      touch-action: manipulation;
     }
     #title {
-      font-family: 'MyHandwrite', sans-serif;      
+      font-family: 'MyHandwrite', sans-serif;
       height: 10vh;
       line-height: 10vh;
       text-align: center;
@@ -45,6 +47,7 @@
       display: block;
       max-width: 90%;
       max-height: 100%;
+      pointer-events: none; /* ✅ 讓觸控穿透 canvas */
     }
     #annotation {
       height: 14vh;
@@ -68,8 +71,8 @@
       color: #fff;
       border: none;
       border-radius: 5px;
-      z-index: 10;
-      display: none; /* 預設隱藏 */
+      z-index: 9999; /* ✅ 確保按鈕在最上層 */
+      display: none;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
@@ -84,7 +87,6 @@
   <script src="mysketch.js"></script>
 
   <script>
-    // 傳送點擊事件給父頁面
     function reportClickToParent() {
       window.parent.postMessage({ type: "childClick" }, "*");
     }
@@ -95,12 +97,10 @@
       reportClickToParent();
     }, { passive: false });
 
-    // 判斷是否為 iOS 裝置
     function isIOSDevice() {
       return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     }
 
-    // 載入後顯示按鈕（僅 iOS + 需授權）
     window.addEventListener("load", () => {
       const btn = document.getElementById('permission-btn');
       if (
@@ -112,7 +112,6 @@
       }
     });
 
-    // 要求授權
     function requestMotionPermission() {
       const btn = document.getElementById('permission-btn');
       DeviceMotionEvent.requestPermission()
