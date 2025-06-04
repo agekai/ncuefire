@@ -3,7 +3,7 @@ let canvasSize;
 let baseWidth = 600;
 let baseHeight = 600;
 
-let annotationText = "喔喔喔喔喔~~~。\n(🔍互動提示：平衡靜看立方體的美)";
+let annotationText = "喔喔喔喔喔~~~\n(🔍互動提示：平衡靜看體的美)";
 let annotationIndex = 0;
 let annotationElement;
 let annotationSpeed = 50;
