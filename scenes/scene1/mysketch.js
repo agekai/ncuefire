@@ -1,7 +1,7 @@
 let canvas;
 let canvasSize; // 動態計算的尺寸
 
-let annotationText = "思想的開始、動作的初衷、情感的種子。\n(🔍互動提示：找到最初的點，喚起這段旅程!)";
+let annotationText = "思想的開始、動作的初衷、情感的種子\n(🔍互動提示：找到最初的點，喚起這段旅程!)";
 let annotationIndex = 0;
 let annotationElement;
 let annotationSpeed = 50; // ms per char
