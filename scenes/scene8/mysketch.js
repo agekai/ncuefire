@@ -12,6 +12,11 @@ let angleX = 0;
 let angleY = 0;
 let vertices = [];
 
+let rotationSpeedX = 0;
+let rotationSpeedY = 0;
+let decay = 0.98;
+let shakeThreshold = 1.5;
+
 function setup() {
   let container = document.getElementById('canvas-container');
   canvas = createCanvas(baseWidth, baseHeight);
@@ -38,6 +43,21 @@ function setup() {
     [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1],
     [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1]
   ];
+
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    let button = createButton('啟用感應控制');
+    button.position(10, 10);
+    button.style('z-index', '1000');
+    button.mousePressed(async () => {
+      let response = await DeviceMotionEvent.requestPermission();
+      if (response === 'granted') {
+        window.addEventListener('devicemotion', handleMotion);
+        button.remove();
+      }
+    });
+  } else {
+    window.addEventListener('devicemotion', handleMotion);
+  }
 }
 
 function adjustCanvasSize() {
@@ -55,16 +75,14 @@ function draw() {
   push();
   scale(scaleFactor);
 
-	drawFrame();
+  drawFrame();
 
-  // 原點火焰與線軸
   push();
-  translate(100, baseHeight * 0.75); // 使用邏輯高度600
+  translate(100, baseHeight * 0.75);
   drawAxesText();
   drawFireText();
   pop();
 
-  // 第一象限立方體
   drawCubeText();
 
   pop();
@@ -136,7 +154,7 @@ function drawFireText() {
 
 function drawCubeText() {
   push();
-  translate(baseWidth * 0.6, baseHeight * 0.35); // 移到第一象限
+  translate(baseWidth * 0.6, baseHeight * 0.35);
 
   let projected = [];
 
@@ -150,7 +168,7 @@ function drawCubeText() {
     let tempX = x * cos(angleY) - z * sin(angleY);
     let tempZ = x * sin(angleY) + z * cos(angleY);
 
-    let scale = 200 / (tempZ + 3); // 放大立方體
+    let scale = 200 / (tempZ + 3);
     let projectedX = tempX * scale;
     let projectedY = y * scale;
 
@@ -178,10 +196,17 @@ function drawCubeText() {
     text("點", pt[0], pt[1]);
   }
 
-  pop();
+  // 加入旋轉角度（由感應器控制）
+  angleX += rotationSpeedX;
+  angleY += rotationSpeedY;
 
-  angleX += 0.02;
-  angleY += 0.03;
+  // 慣性減速
+  rotationSpeedX *= decay;
+  rotationSpeedY *= decay;
+  if (abs(rotationSpeedX) < 0.001) rotationSpeedX = 0;
+  if (abs(rotationSpeedY) < 0.001) rotationSpeedY = 0;
+
+  pop();
 }
 
 function drawASCIIEdge(i, j, projected) {
@@ -195,6 +220,18 @@ function drawASCIIEdge(i, j, projected) {
     fill(0, 255, 255, 100);
     textSize(14);
     text("線", lerpX, lerpY);
+  }
+}
+
+function handleMotion(event) {
+  let acc = event.accelerationIncludingGravity;
+  if (acc) {
+    let totalAcceleration = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+
+    if (totalAcceleration > shakeThreshold) {
+      rotationSpeedX += random(-0.02, 0.02) * (totalAcceleration - shakeThreshold);
+      rotationSpeedY += random(-0.02, 0.02) * (totalAcceleration - shakeThreshold);
+    }
   }
 }
 
