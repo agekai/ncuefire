@@ -15,7 +15,7 @@ let vertices = [];
 let rotationSpeedX = 0;
 let rotationSpeedY = 0;
 let decay = 0.98;
-let shakeThreshold = 1.5;
+let shakeThreshold = 0.5;
 
 function setup() {
   let container = document.getElementById('canvas-container');
